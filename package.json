@@ -9,6 +9,7 @@
   "dependencies": {
     "ecstatic": "^3.2.0",
     "express": "~4.15.5",
+    "morgan": "^1.9.0",
     "node-ffprobe": "^1.2.2",
     "pug": "2.0.0-beta11",
     "serve-favicon": "~2.4.5"

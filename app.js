@@ -5,23 +5,15 @@ const os = require('os');
 const probe = require('node-ffprobe');
 const favicon = require('serve-favicon');
 const fs = require('fs');
+const logger = require('morgan');
 
 const ifaces = os.networkInterfaces();
 const app = express();
 const directory = process.cwd();
 const portNumber = 3000;
 
-let ipAddr;
-var file;
-var probeData;
+let file;
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
-
-app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-
-// code to get ip address
 Object.keys(ifaces).forEach((ifname) => {
   let alias = 0;
 
@@ -37,7 +29,6 @@ Object.keys(ifaces).forEach((ifname) => {
     } else {
       // this interface has only one ipv4 adress
       console.log('Media server running at', `${iface.address}:${portNumber}`);
-      ipAddr = iface.address;
     }
     alias += 1;
   });
@@ -46,23 +37,23 @@ Object.keys(ifaces).forEach((ifname) => {
 function serveMedia(req, res) {
   file = directory + req.url;
   probe(file, (err, probeData) => {
-    if (err) console.error(err);
+    if (err) res.end(err);
     else if (probeData.streams[0].height !== undefined) {
-      //give 2 handlers for this request and use next()..use err too maybe<----maybe this
-      res.render('videoPlayer',{videoLocation:req.url+'deathNodeStream'});
+      // give 2 handlers for this request and use next()..use err too maybe<----maybe this
+      res.render('videoPlayer', { videoLocation: `${req.url}deathNodeStream` });
     }
   });
 }
-function serveVideoStream(req,res){
-  fs.stat(file, (onSizeErr, stats) => {
-    if (onSizeErr) {
-      if (onSizeErr.code === 'ENOENT') {
+function serveVideoStream(req, res) {
+  fs.stat(file, (onStatErr, stats) => {
+    if (onStatErr) {
+      if (onStatErr.code === 'ENOENT') {
         // 404 Error if file not found
         return res.sendStatus(404);
       }
-      res.end(onSizeErr);
+      res.end(onStatErr);
     }
-    
+
     const range = req.headers.range;
     if (!range) {
       // 416 Wrong range
@@ -90,7 +81,15 @@ function serveVideoStream(req,res){
   });
 }
 
-app.get(/deathNodeStream/,serveVideoStream);
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'pug');
+
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(logger('dev'));
+// code to get ip address
+
+app.get(/deathNodeStream/, serveVideoStream);
 app.get(/[.]/, serveMedia);// handle anything with an extension (file)
 
 // static files
