@@ -34,13 +34,15 @@ Object.keys(ifaces).forEach((ifname) => {
   });
 });
 
-function serveMedia(req, res) {
+function serveMedia(req, res, next) {
   file = directory + req.url;
   probe(file, (err, probeData) => {
-    if (err) res.end(err);
+    if (err){
+        console.error(err);
+        next();//ecstatic should handle files that aren't media
+    }
     else if (probeData.streams[0].height !== undefined) {
-      // give 2 handlers for this request and use next()..use err too maybe<----maybe this
-      res.render('videoPlayer', { videoLocation: `${req.url}deathNodeStream` });
+      res.render('videoPlayer', { videoLocation: `${req.url}deathNodeStream` });//find another way to do this
     }
   });
 }
