@@ -1,8 +1,5 @@
 const express = require('express');
 const path = require('path');
-const logger = require('morgan');
-const cookieParser = require('cookie-parser');
-const bodyParser = require('body-parser');
 const ecstatic = require('ecstatic');
 const os = require('os');
 const probe = require('node-ffprobe');
@@ -23,10 +20,6 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
 
 // code to get ip address
 Object.keys(ifaces).forEach((ifname) => {
@@ -61,7 +54,6 @@ function serveMedia(req, res) {
   });
 }
 function serveVideoStream(req,res){
-  // console.log(req.url);
   fs.stat(file, (onSizeErr, stats) => {
     if (onSizeErr) {
       if (onSizeErr.code === 'ENOENT') {
@@ -70,8 +62,7 @@ function serveVideoStream(req,res){
       }
       res.end(onSizeErr);
     }
-    // console.log(stats);
-    // console.log(probeData);
+    
     const range = req.headers.range;
     if (!range) {
       // 416 Wrong range
