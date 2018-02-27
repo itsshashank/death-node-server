@@ -26,7 +26,7 @@ Object.keys(ifaces).forEach((ifname) => {
 
     if (alias >= 1) {
       // this single interface has multiple ipv4 addresses
-      console.log(`${ifname}:${alias}`, iface.address);
+      console.log('Media server running at',`${ifname}:${alias}`, iface.address);
     } else {
       // this interface has only one ipv4 adress
       console.log('Media server running at', `${iface.address}:${portNumber}`);
@@ -40,10 +40,10 @@ function serveMedia(req, res, next) {
   probe(file, (err, probeData) => {
     if (err){
         console.error(err);
-        next();//ecstatic should handle files that aren't media
+        next('route');//ecstatic should handle files that aren't media
     }
     else if (probeData.streams[0].height !== undefined) {
-      res.render('videoPlayer', { videoLocation: `${req.url}deathNodeStream` });//find another way to do this
+      res.render('videoPlayer', { videoLocation: `deathNodeStream${req.url}` });//find another way to do this
     }
   });
 }
