@@ -14,6 +14,7 @@ const portNumber = 3000;
 
 let file;
 
+// code to get ip address
 Object.keys(ifaces).forEach((ifname) => {
   let alias = 0;
 
@@ -46,6 +47,7 @@ function serveMedia(req, res, next) {
     }
   });
 }
+//function that streams the video
 function serveVideoStream(req, res) {
   fs.stat(file, (onStatErr, stats) => {
     if (onStatErr) {
@@ -89,7 +91,6 @@ app.set('view engine', 'pug');
 
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
-// code to get ip address
 
 app.get(/deathNodeStream/, serveVideoStream);
 app.get(/[.]/, serveMedia);// handle anything with an extension (file)
