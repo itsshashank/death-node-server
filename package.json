@@ -1,5 +1,5 @@
 {
-  "name": "node-media-server",
+  "name": "death-node-server",
   "version": "0.0.0",
   "private": true,
   "scripts": {
@@ -7,6 +7,7 @@
     "devstart": "nodemon ./bin/www"
   },
   "dependencies": {
+    "debug": "^3.1.0",
     "ecstatic": "^3.2.0",
     "express": "~4.15.5",
     "morgan": "^1.9.0",

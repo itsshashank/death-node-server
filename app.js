@@ -1,53 +1,30 @@
 const express = require('express');
 const path = require('path');
 const ecstatic = require('ecstatic');
-const os = require('os');
 const probe = require('node-ffprobe');
 const favicon = require('serve-favicon');
 const fs = require('fs');
 const logger = require('morgan');
 
-const ifaces = os.networkInterfaces();
+
 const app = express();
 const directory = process.cwd();
-const portNumber = 3000;
 
 let file;
 
-// code to get ip address
-Object.keys(ifaces).forEach((ifname) => {
-  let alias = 0;
-
-  ifaces[ifname].forEach((iface) => {
-    if (iface.family !== 'IPv4' || iface.internal !== false) {
-      // skip over internal (i.e. 127.0.0.1) and non-ipv4 addresses
-      return;
-    }
-
-    if (alias >= 1) {
-      // this single interface has multiple ipv4 addresses
-      console.log('Media server running at',`${ifname}:${alias}`, iface.address);
-    } else {
-      // this interface has only one ipv4 adress
-      console.log('Media server running at', `${iface.address}:${portNumber}`);
-    }
-    alias += 1;
-  });
-});
 
 function serveMedia(req, res, next) {
   file = directory + req.url;
   probe(file, (err, probeData) => {
-    if (err){
-        console.error(err);
-        next('route');//ecstatic should handle files that aren't media
-    }
-    else if (probeData.streams[0].height !== undefined) {
-      res.render('videoPlayer', { videoLocation: `deathNodeStream${req.url}` });//find another way to do this
+    if (err) {
+      console.error(err);
+      next('route');// ecstatic should handle files that aren't media
+    } else if (probeData.streams[0].height !== undefined) {
+      res.render('videoPlayer', { videoLocation: `deathNodeStream${req.url}` });// find another way to do this
     }
   });
 }
-//function that streams the video
+// function that streams the video
 function serveVideoStream(req, res) {
   fs.stat(file, (onStatErr, stats) => {
     if (onStatErr) {
